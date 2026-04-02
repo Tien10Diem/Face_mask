@@ -140,8 +140,8 @@ elif page == "Triển khai mô hình":
                 
                 res_plotted = results[0].plot()
                 # Áp dụng Letterbox để khung hình đẹp, không méo
-                fixed_res = letterbox_resize(res_plotted, (800, 600))
-                
+                # fixed_res = letterbox_resize(res_plotted, (1200, 800))
+                fixed_res = res_plotted
                 with col_b:
                     st.image(cv2.cvtColor(fixed_res, cv2.COLOR_BGR2RGB), caption="Kết quả dự đoán", use_container_width=True)
                 
