@@ -1,0 +1,4 @@
+venv/
+runs/
+inference_data/
+__pycache__/

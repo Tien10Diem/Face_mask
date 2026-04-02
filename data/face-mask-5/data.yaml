@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 2
+names: ['mask', 'nomask']
+
+roboflow:
+  workspace: rfq
+  project: face-mask-aq2sw
+  version: 5
+  license: MIT
+  url: https://universe.roboflow.com/rfq/face-mask-aq2sw/dataset/5
