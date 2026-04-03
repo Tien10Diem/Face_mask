@@ -263,36 +263,47 @@ elif page == "Đánh giá & Hiệu năng":
     st.title("Trang 3: Đánh giá & Hiệu năng")
     
     # 1. Các chỉ số đo lường hiệu năng
-    st.subheader("1. Các chỉ số đo lường tổng quan (Tập Validation)")
-    st.markdown("Hiệu năng của mô hình YOLO26 trên tập Validation (Tổng số 3178 đối tượng):")
+    st.subheader("1. Các chỉ số đo lường tổng quan")
     
+    # --- Tập Validation ---
+    st.markdown("**1.1. Hiệu năng trên tập Validation (Tổng số 3178 đối tượng):**")
     m1, m2, m3, m4 = st.columns(4)
-    # Hiển thị chỉ số trung bình (all) của cả 2 lớp
     m1.metric("Precision", "0.923")
-    m2.metric("Recall", "0.89")
+    m2.metric("Recall", "0.890")
     m3.metric("mAP@50", "0.929")
     m4.metric("mAP@50-95", "0.695")
     
+    # --- Tập Test ---
+    st.markdown("**1.2. Hiệu năng trên tập Kiểm thử - Test (Tổng số 1504 đối tượng):**")
+    t1, t2, t3, t4 = st.columns(4)
+    t1.metric("Precision", "0.921")
+    t2.metric("Recall", "0.896")
+    t3.metric("mAP@50", "0.933")
+    t4.metric("mAP@50-95", "0.697")
+    
     # 2. Biểu đồ kỹ thuật
     st.subheader("2. Biểu đồ kỹ thuật")
-    tab1, tab2 = st.tabs(["Ma trận nhầm lẫn (Confusion Matrix)", "Đồ thị Huấn luyện (Loss/Metrics)"])
+    tab1, tab2, tab3 = st.tabs(["Ma trận nhầm lẫn (Val)", "Ma trận nhầm lẫn (Test)", "Đồ thị Huấn luyện (Loss/Metrics)"])
     
     with tab1:
-        st.markdown("**Ma trận nhầm lẫn:** Thể hiện chi tiết số lượng dự đoán đúng/sai trên tập Validation.")
-        
-        # Sửa đường dẫn trỏ về đúng thư mục val
+        st.markdown("**Ma trận nhầm lẫn (Validation):** Thể hiện chi tiết số lượng dự đoán đúng/sai trên tập Validation.")
         cm_path = r"confusion_matrix.png" 
-        
         if os.path.exists(cm_path):
             st.image(cm_path, caption="Confusion Matrix (Tập Validation)", use_container_width=True)
         else:
             st.info(f"Vui lòng lưu ảnh Confusion Matrix chuẩn vào đường dẫn: `{cm_path}` để hiển thị.")
             
     with tab2:
+        st.markdown("**Ma trận nhầm lẫn (Test):** Kiểm chứng lại khả năng phân loại của mô hình trên dữ liệu hoàn toàn độc lập.")
+        cm_test_path = r"confusion_matrix_test.png" 
+        if os.path.exists(cm_test_path):
+            st.image(cm_test_path, caption="Confusion Matrix (Tập Test)", use_container_width=True)
+        else:
+            st.info(f"Vui lòng lưu ảnh Confusion Matrix Test vào đường dẫn: `{cm_test_path}` để hiển thị.")
+            
+    with tab3:
         st.markdown("**Đồ thị Huấn luyện:** Theo dõi sự hội tụ của hàm Loss và sự gia tăng của các chỉ số mAP, Precision, Recall qua các kỷ nguyên (Epochs).")
-        
         results_path = r"results.png"
-        
         if os.path.exists(results_path):
             st.image(results_path, caption="Đồ thị Loss/Metrics trong quá trình huấn luyện", use_container_width=True)
         else:
@@ -301,13 +312,14 @@ elif page == "Đánh giá & Hiệu năng":
     # 3. Phân tích sai số và hướng cải thiện
     st.subheader("3. Nhận định & Phân tích chuyên sâu")
     st.warning("""
-    **Phân tích học thuật dựa trên Ma trận nhầm lẫn thực tế:**
-    * **Độ chính xác nội lớp (True Positives):** Mô hình phân loại xuất sắc lớp `mask` với 1013/1097 trường hợp đúng (chỉ số mAP@50 đạt 0.983).
-    * **Vấn đề bỏ sót đối tượng (False Negatives - Lỗi Background):** Đây là điểm yếu lớn nhất của mô hình hiện tại. Nhìn vào hàng `background`, có tới **337** khuôn mặt `nomask` và **14** khuôn mặt `mask` bị mô hình bỏ qua hoàn toàn (không vẽ bounding box). Con số 337 lỗi này chính là nguyên nhân trực tiếp kéo chỉ số Recall của lớp `nomask` xuống mức thấp (0.814).
-    * **Nhầm lẫn giữa các lớp (Class Confusion):** Tỷ lệ phân loại nhầm giữa 2 lớp khá thấp. Tuy nhiên, mô hình có xu hướng nhầm người đeo khẩu trang thành không đeo (70 trường hợp) nhiều hơn là nhầm mặt trần thành có khẩu trang (18 trường hợp).
-    * **Báo động giả (False Positives):** Có 110 cảnh vật bị nhận diện nhầm thành `mask` và 123 cảnh vật bị nhầm thành `nomask`.
+    **Phân tích học thuật dựa trên Ma trận nhầm lẫn thực tế (Val & Test):**
+    * **Độ ổn định của mô hình:** Các chỉ số đo lường trên tập Test (mAP@50 đạt 0.933) tương đồng hoàn hảo với tập Val (0.929). Điều này chứng minh mô hình có độ khái quát hóa (Generalization) cực tốt, hoàn toàn không xảy ra hiện tượng học vẹt (Overfitting).
+    * **Độ chính xác nội lớp (True Positives):** Mô hình duy trì khả năng phân loại xuất sắc lớp `mask` ở cả hai tập dữ liệu (1013/1097 trên Val và 527/578 trên Test).
+    * **Vấn đề bỏ sót đối tượng (False Negatives - Lỗi Background):** Sự nhất quán của lỗi sai được thể hiện rõ ràng. Nhìn vào hàng `background` trên tập Test, mô hình tiếp tục bỏ qua **123** khuôn mặt `nomask` và **9** khuôn mặt `mask` (tỷ lệ lỗi tương đương với 337 và 14 trên tập Val). Đây chính là nguyên nhân trực tiếp và duy nhất kéo chỉ số Recall của lớp `nomask` xuống thấp.
+    * **Nhầm lẫn giữa các lớp (Class Confusion):** Tỷ lệ phân loại nhầm giữa 2 lớp khá thấp, tập Test ghi nhận 42 trường hợp nhầm `mask` thành `nomask`, và chỉ 8 trường hợp nhầm ngược lại.
+    * **Báo động giả (False Positives):** Trên tập Test, có 52 cảnh vật bị nhận diện nhầm thành `mask` và 63 cảnh vật bị nhầm thành `nomask`.
 
     **Hướng cải thiện:**
-    * **Giải quyết lỗi Background:** Để giảm thiểu con số 337 trường hợp bị bỏ sót, cần bổ sung thêm dữ liệu huấn luyện chứa các khuôn mặt `nomask` có kích thước nhỏ (ở xa), bị che khuất một phần hoặc chụp trong điều kiện ánh sáng yếu, màu sắc tương đồng da người.
+    * **Giải quyết lỗi Background:** Để giảm thiểu các trường hợp bị bỏ sót (False Negatives), cần bổ sung thêm dữ liệu huấn luyện chứa các khuôn mặt `nomask` có kích thước nhỏ (ở xa), bị che khuất một phần hoặc chụp trong điều kiện ánh sáng yếu, màu sắc tương đồng da người.
     * **Tinh chỉnh kỹ thuật:** Cân nhắc hạ nhẹ ngưỡng Confidence Threshold trong thực tế triển khai để "vớt" lại các khuôn mặt bị bỏ sót. Đồng thời, cấu hình tăng cường các kỹ thuật Data Augmentation (như Mosaic, Zoom out, Random Crop) trong quá trình huấn luyện để ép YOLO26 học cách trích xuất đặc trưng của các vật thể cực nhỏ.
     """)
