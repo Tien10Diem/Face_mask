@@ -6,3 +6,4 @@ models/best_openvino_model/
 convertOnnx.py
 yolo26n.pt
 count_labels.py
+inferences.py
