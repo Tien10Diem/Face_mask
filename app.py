@@ -321,5 +321,4 @@ elif page == "Đánh giá & Hiệu năng":
 
     **Hướng cải thiện:**
     * **Giải quyết lỗi Background:** Để giảm thiểu các trường hợp bị bỏ sót (False Negatives), cần bổ sung thêm dữ liệu huấn luyện chứa các khuôn mặt `nomask` có kích thước nhỏ (ở xa), bị che khuất một phần hoặc chụp trong điều kiện ánh sáng yếu, màu sắc tương đồng da người.
-    * **Tinh chỉnh kỹ thuật:** Cân nhắc hạ nhẹ ngưỡng Confidence Threshold trong thực tế triển khai để "vớt" lại các khuôn mặt bị bỏ sót. Đồng thời, cấu hình tăng cường các kỹ thuật Data Augmentation (như Mosaic, Zoom out, Random Crop) trong quá trình huấn luyện để ép YOLO26 học cách trích xuất đặc trưng của các vật thể cực nhỏ.
-    """)
+   * **Tinh chỉnh kỹ thuật:** Cân nhắc hạ nhẹ ngưỡng Confidence Threshold trong thực tế triển khai để "vớt" lại các khuôn mặt bị bỏ sót. Về mặt huấn luyện, cần khai báo thêm các kỹ thuật Augmentation chuyên trị lỗi che khuất và vật thể siêu nhỏ như **MixUp** (trộn chồng lớp ảnh lên nhau) hoặc tinh chỉnh tham số **scale** (mở rộng biên độ thu phóng ảnh ngẫu nhiên).""")
