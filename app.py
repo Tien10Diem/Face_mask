@@ -259,24 +259,55 @@ elif page == "Triển khai mô hình":
                 if os.path.exists(temp_path):
                     os.unlink(temp_path)
 # TRANG 3: ĐÁNH GIÁ & HIỆU NĂNG [cite: 27]
-# ==========================================
 elif page == "Đánh giá & Hiệu năng":
-    st.title("Trang 3: Đánh giá & Hiệu năng [cite: 27]")
+    st.title("Trang 3: Đánh giá & Hiệu năng")
     
-    # Chỉ số đo lường hiệu năng [cite: 29]
-    st.subheader("Các chỉ số đo lường chính (Tập Validation) [cite: 29]")
-    m1, m2, m3 = st.columns(3)
-    m1.metric("mAP@50", "0.927")
-    m2.metric("Precision", "0.920")
-    m3.metric("Recall", "0.882")
+    # 1. Các chỉ số đo lường hiệu năng
+    st.subheader("1. Các chỉ số đo lường tổng quan (Tập Validation)")
+    st.markdown("Hiệu năng của mô hình YOLO26 trên tập Validation (Tổng số 3178 đối tượng):")
     
-    # Biểu đồ Confusion Matrix [cite: 30]
-    st.subheader("Ma trận nhầm lẫn (Confusion Matrix) [cite: 30]")
-    st.markdown("Ma trận cho thấy khả năng phân loại chính xác giữa người đeo và không đeo khẩu trang. [cite: 30]")
+    m1, m2, m3, m4 = st.columns(4)
+    # Hiển thị chỉ số trung bình (all) của cả 2 lớp
+    m1.metric("Precision", "0.923")
+    m2.metric("Recall", "0.89")
+    m3.metric("mAP@50", "0.929")
+    m4.metric("mAP@50-95", "0.695")
     
-    # Phân tích sai số [cite: 31]
-    st.subheader("Nhận định & Hướng cải thiện [cite: 31]")
+    # 2. Biểu đồ kỹ thuật
+    st.subheader("2. Biểu đồ kỹ thuật")
+    tab1, tab2 = st.tabs(["Ma trận nhầm lẫn (Confusion Matrix)", "Đồ thị Huấn luyện (Loss/Metrics)"])
+    
+    with tab1:
+        st.markdown("**Ma trận nhầm lẫn:** Thể hiện chi tiết số lượng dự đoán đúng/sai trên tập Validation.")
+        
+        # Sửa đường dẫn trỏ về đúng thư mục val
+        cm_path = r"confusion_matrix.png" 
+        
+        if os.path.exists(cm_path):
+            st.image(cm_path, caption="Confusion Matrix (Tập Validation)", use_container_width=True)
+        else:
+            st.info(f"Vui lòng lưu ảnh Confusion Matrix chuẩn vào đường dẫn: `{cm_path}` để hiển thị.")
+            
+    with tab2:
+        st.markdown("**Đồ thị Huấn luyện:** Theo dõi sự hội tụ của hàm Loss và sự gia tăng của các chỉ số mAP, Precision, Recall qua các kỷ nguyên (Epochs).")
+        
+        results_path = r"results.png"
+        
+        if os.path.exists(results_path):
+            st.image(results_path, caption="Đồ thị Loss/Metrics trong quá trình huấn luyện", use_container_width=True)
+        else:
+            st.info(f"Vui lòng lưu ảnh Đồ thị kết quả vào đường dẫn: `{results_path}` để hiển thị.")
+    
+    # 3. Phân tích sai số và hướng cải thiện
+    st.subheader("3. Nhận định & Phân tích chuyên sâu")
     st.warning("""
-    * **Phân tích sai sót:** Mô hình đôi khi nhầm lẫn khi khuôn mặt ở quá xa hoặc bị che khuất bởi vật cản khác. [cite: 31]
-    * **Hướng cải thiện:** Bổ sung thêm dữ liệu ảnh chụp trong điều kiện thiếu sáng và sử dụng các kỹ thuật Model Surgery. [cite: 31]
+    **Phân tích học thuật dựa trên Ma trận nhầm lẫn thực tế:**
+    * **Độ chính xác nội lớp (True Positives):** Mô hình phân loại xuất sắc lớp `mask` với 1013/1097 trường hợp đúng (chỉ số mAP@50 đạt 0.983).
+    * **Vấn đề bỏ sót đối tượng (False Negatives - Lỗi Background):** Đây là điểm yếu lớn nhất của mô hình hiện tại. Nhìn vào hàng `background`, có tới **337** khuôn mặt `nomask` và **14** khuôn mặt `mask` bị mô hình bỏ qua hoàn toàn (không vẽ bounding box). Con số 337 lỗi này chính là nguyên nhân trực tiếp kéo chỉ số Recall của lớp `nomask` xuống mức thấp (0.814).
+    * **Nhầm lẫn giữa các lớp (Class Confusion):** Tỷ lệ phân loại nhầm giữa 2 lớp khá thấp. Tuy nhiên, mô hình có xu hướng nhầm người đeo khẩu trang thành không đeo (70 trường hợp) nhiều hơn là nhầm mặt trần thành có khẩu trang (18 trường hợp).
+    * **Báo động giả (False Positives):** Có 110 cảnh vật bị nhận diện nhầm thành `mask` và 123 cảnh vật bị nhầm thành `nomask`.
+
+    **Hướng cải thiện:**
+    * **Giải quyết lỗi Background:** Để giảm thiểu con số 337 trường hợp bị bỏ sót, cần bổ sung thêm dữ liệu huấn luyện chứa các khuôn mặt `nomask` có kích thước nhỏ (ở xa), bị che khuất một phần hoặc chụp trong điều kiện ánh sáng yếu, màu sắc tương đồng da người.
+    * **Tinh chỉnh kỹ thuật:** Cân nhắc hạ nhẹ ngưỡng Confidence Threshold trong thực tế triển khai để "vớt" lại các khuôn mặt bị bỏ sót. Đồng thời, cấu hình tăng cường các kỹ thuật Data Augmentation (như Mosaic, Zoom out, Random Crop) trong quá trình huấn luyện để ép YOLO26 học cách trích xuất đặc trưng của các vật thể cực nhỏ.
     """)
