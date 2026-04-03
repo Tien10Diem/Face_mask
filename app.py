@@ -121,8 +121,8 @@ if page == "Giới thiệu & Khám phá dữ liệu":
     st.markdown("**3. Trực quan hóa dữ liệu ảnh mẫu**")
     
     # Thay đổi đường dẫn này trỏ tới thư mục chứa ảnh train thực tế của bạn
-    sample_image_dir = r"data\face-mask-5\train\images" 
-    sample_label_dir = r"data\face-mask-5\train\labels" # Thêm thư mục nhãn để phân loại
+    sample_image_dir = "data/face-mask-5/train/images" 
+    sample_label_dir = "data/face-mask-5/train/labels" # Thêm thư mục nhãn để phân loại
     
     try:
         valid_extensions = ('.jpg', '.jpeg', '.png')
