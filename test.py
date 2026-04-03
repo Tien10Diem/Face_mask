@@ -10,7 +10,7 @@ def evaluate_test_set():
 
     metrics = model.val(
         data=data_yaml,
-        split='val',      
+        split='test',      
         imgsz=640,         
         device='',         # Để trống là tự động chọn GPU nếu có, không thì chạy CPU. Có thể gán '0' cho GPU số 0.
         plots=True         # Cho phép sinh ra các biểu đồ đánh giá (Confusion Matrix, PR curve,...)
