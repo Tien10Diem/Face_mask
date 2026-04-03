@@ -47,7 +47,7 @@ def letterbox_resize(image, target_size=(800, 600)):
 @st.cache_resource
 def load_model():
     # Sử dụng định dạng ONNX để tối ưu suy luận trên CPU của Cloud [cite: 21, 37]
-    return YOLO(r"models\best.onnx")
+    return YOLO("models/best.onnx")
 
 @st.cache_data
 def load_eda_data():
