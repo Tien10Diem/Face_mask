@@ -69,7 +69,8 @@ st.sidebar.title("Hệ thống Điều hướng")
 page = st.sidebar.radio("Chọn trang hiển thị:", 
                         ["Giới thiệu & Khám phá dữ liệu", 
                          "Triển khai mô hình", 
-                         "Đánh giá & Hiệu năng"]) 
+                         "Một số trường hợp nhận diện sai hoặc thiếu", 
+                         "Đánh giá & Hiệu năng"])
 
 # ==========================================
 # TRANG 1: GIỚI THIỆU & EDA 
@@ -258,9 +259,45 @@ elif page == "Triển khai mô hình":
                 cap.release() 
                 if os.path.exists(temp_path):
                     os.unlink(temp_path)
-# TRANG 3: ĐÁNH GIÁ & HIỆU NĂNG [cite: 27]
+                    
+elif page == "Một số trường hợp nhận diện sai hoặc thiếu":
+    st.title("Trang 3: Một số trường hợp nhận diện sai hoặc thiếu")
+    st.markdown("""
+    Trang này trực quan hóa các bức ảnh mà mô hình YOLO26 dự đoán không khớp với nhãn thực tế (Ground Truth). 
+    """)
+    
+    # Đường dẫn trỏ tới thư mục chứa ảnh lỗi bạn đã trích xuất bằng script trước đó
+    error_dir = "false_imgs"
+    
+    if os.path.exists(error_dir):
+        # Đọc tất cả các ảnh định dạng hợp lệ
+        valid_extensions = ('.jpg', '.jpeg', '.png')
+        error_images = sorted([f for f in os.listdir(error_dir) if f.lower().endswith(valid_extensions)])
+        
+        if len(error_images) > 0:
+            st.write(f"**Tổng số ảnh dự đoán sai được lưu trữ:** {len(error_images)} ảnh.")
+            
+            # Sử dụng Slider để người xem tùy chọn số lượng ảnh muốn tải lên giao diện (Tránh lag nếu có quá nhiều ảnh)
+            num_display = st.slider("Số lượng ảnh muốn xem:", min_value=1, max_value=min(50, len(error_images)), value=min(4, len(error_images)))
+            st.divider()
+            
+            # Hiển thị ảnh dạng lưới 2 cột cho dễ nhìn
+            cols = st.columns(2)
+            for i in range(num_display):
+                img_path = os.path.join(error_dir, error_images[i])
+                img = Image.open(img_path)
+                
+                # Tên file chính là caption giúp dễ dàng tra cứu lại file gốc
+                cols[i % 2].image(img, caption=f"Tên tệp: {error_images[i]}", use_container_width=True)
+        else:
+            st.info("Thư mục tồn tại nhưng không có ảnh lỗi nào được tìm thấy.")
+    else:
+        st.warning(f"Chưa tìm thấy thư mục `{error_dir}`. Vui lòng đảm bảo bạn đã chạy script trích xuất lỗi và đặt thư mục cùng cấp với `app.py`.")
+        
+        
+# TRANG 4: ĐÁNH GIÁ & HIỆU NĂNG [cite: 27]
 elif page == "Đánh giá & Hiệu năng":
-    st.title("Trang 3: Đánh giá & Hiệu năng")
+    st.title("Trang 4: Đánh giá & Hiệu năng")
     
     # 1. Các chỉ số đo lường hiệu năng
     st.subheader("1. Các chỉ số đo lường tổng quan")
