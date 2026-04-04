@@ -305,8 +305,8 @@ elif page == "Đánh giá & Hiệu năng":
     # --- Tập Validation ---
     st.markdown("**1.1. Hiệu năng trên tập Validation (Tổng số 3178 đối tượng):**")
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Precision", "0.923")
-    m2.metric("Recall", "0.890")
+    m1.metric("Precision", "0.926")
+    m2.metric("Recall", "0.889")
     m3.metric("mAP@50", "0.929")
     m4.metric("mAP@50-95", "0.695")
     
